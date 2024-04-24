@@ -8,6 +8,7 @@ public class PickUpSpawnManager : MonoBehaviour
 
     [SerializeField]
     private float spawnRangeX = 6.0f;
+    private float spawnRangeY = 3.0f;
 
     private float startDelay = 2f;
     private float spawnInterval = 8f;
@@ -21,7 +22,7 @@ public class PickUpSpawnManager : MonoBehaviour
     void SpawnRandomPickUp()
     {
         // Generate a position to spawn at
-        Vector2 spawnPos = new Vector2(Random.Range(-spawnRangeX, spawnRangeX), -3);
+        Vector2 spawnPos = new Vector2(Random.Range(-spawnRangeX, spawnRangeX), Random.Range(-spawnRangeY, spawnRangeY));
         // Pick a random pickup from array
         int pickupIndex = Random.Range(0,pickupPrefabs.Length);
         // Spawn pickup indexed from the array

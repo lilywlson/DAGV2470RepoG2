@@ -25,6 +25,6 @@ public class PickUpScoreManager : MonoBehaviour
    // update text
    public void UpdateScoreText()
    {
-        scoreText.text = "COLLECTABLES: "+ score;
+        scoreText.text = score.ToString();
    }
 }

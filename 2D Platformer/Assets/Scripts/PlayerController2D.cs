@@ -22,29 +22,25 @@ public class PlayerController2D : MonoBehaviour
     public float checkRadius;
     public LayerMask whatIsGround;
 
-    public bool doubleJump;
-
-    public List<string> items;
-
-    private PickUpScoreManager pickupscoreManager;
-    public int scoreToGive;
+    private bool doubleJumpAvailable = false;
 
     [Header("Animations")]
     private Animator playerAnim;
 
+    private PickUpScoreManager incScore;
+
     // Start is called before the first frame update
     void Start()
     {
-        pickupscoreManager = GameObject.Find("PickUpScoreManager").GetComponent<PickUpScoreManager>();
-        items = new List<string>();
         rb = GetComponent<Rigidbody2D>();
         playerAnim = GetComponent<Animator>();
+        incScore = GetComponent<PickUpScoreManager>();
     }
 
     // Fixed Update is called a fixed or set number of frames. This works best with physics based movement
     void FixedUpdate()
     {
-        if(moveInput > 0 || moveInput < 0)
+        if (moveInput != 0)
         {
             playerAnim.SetBool("isWalking", true);
         }
@@ -54,22 +50,21 @@ public class PlayerController2D : MonoBehaviour
         }
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
-        moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
 
         // If player is moving right but facing left, flip player right
-        if(!isFacingRight && moveInput > 0)
+        if (!isFacingRight && moveInput > 0)
         {
             FlipPlayer();
         }
         // If the player is moving left but facing right, flip player left
-        else if(isFacingRight && moveInput < 0)
+        else if (isFacingRight && moveInput < 0)
         {
             FlipPlayer();
         }
     }
 
-     void FlipPlayer()
+    void FlipPlayer()
     {
         isFacingRight = !isFacingRight;
         Vector3 scaler = transform.localScale;
@@ -80,34 +75,73 @@ public class PlayerController2D : MonoBehaviour
     // Update is called once per frame.
     void Update()
     {
-        if(isGrounded)
+        if (isGrounded)
         {
-            doubleJump = true;
+            doubleJumpAvailable = true;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space) && doubleJump)
+        // Touch input for movement
+        if (Input.touchCount > 0)
         {
-            rb.velocity = Vector2.up * jumpForce;
-            doubleJump = false;
-            playerAnim.SetTrigger("Jump_Trig");
+            Touch touch = Input.GetTouch(0);
+            if(touch.position.y < (2 * (Screen.height / 3)))
+            {
+                if (touch.position.x < Screen.width / 3)
+                {
+                    moveInput = -1;
+                }
+                else if (touch.position.x > Screen.width-(Screen.width / 3))
+                {
+                    moveInput = 1;
+                }
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Space) && !doubleJump && isGrounded)
+        else
         {
-            rb.velocity = Vector2.up * jumpForce;
-            playerAnim.SetTrigger("Jump_Trig");
+            moveInput = 0;
         }
+
+        // Touch input for jumping
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.position.x > Screen.width / 3)
+            {
+                if (touch.position.x < Screen.width-(Screen.width / 3))
+                {
+                    if (touch.phase == TouchPhase.Began)
+                    {
+                        if (isGrounded)
+                        {
+                            Jump();
+                        }
+                        else if (doubleJumpAvailable)
+                        {
+                            Jump();
+                            doubleJumpAvailable = false;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    void Jump()
+    {
+        rb.velocity = Vector2.up * jumpForce;
+        playerAnim.SetTrigger("Jump_Trig");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Collectable"))
+        if (collision.CompareTag("Collectable"))
         {
             string itemType = collision.gameObject.GetComponent<CollectableScript>().itemType;
-            print("You have collected a:"+ itemType);
-            items.Add(itemType);
-            print("Inventory Length:"+ items.Count);
-            pickupscoreManager.IncreaseScore(scoreToGive);
+            Debug.Log("You have collected a: " + itemType);
             Destroy(collision.gameObject);
+            incScore.IncreaseScore(1);
         }
     }
 }
+
