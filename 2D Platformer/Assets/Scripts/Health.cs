@@ -15,6 +15,9 @@ public class Health : MonoBehaviour
 
     public GameObject gameoverRedScreen;
     public GameObject gameoverText;
+    public GameObject retryButton;
+    public GameObject menuButton;
+
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +39,8 @@ public class Health : MonoBehaviour
             Time.timeScale = 0;
             gameoverRedScreen.SetActive(true);
             gameoverText.SetActive(true);
+            retryButton.SetActive(true);
+            menuButton.SetActive(false);
         }
     }
 

@@ -15,6 +15,7 @@ public class PlayerAttack : MonoBehaviour
 
     public Transform firePoint;
     public GameObject projectile;
+    public bool canAttack;
 
     // public Button attackButton; // Reference to the attack button
 
@@ -22,6 +23,7 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         // attackButton.onClick.AddListener(Attack); // Listen for button click
+        canAttack = true;
     }
 
     // Update is called once per frame
@@ -29,15 +31,23 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Input.touchCount > 0)
         {
-            Touch touch = Input.GetTouch(0);
-            if(touch.position.y > (2 * (Screen.height / 3)))
+            if(canAttack)
             {
-                if (touch.position.x > (2 * (Screen.width / 3)))
+                Touch touch = Input.GetTouch(0);
+                if(touch.position.y > (2 * (Screen.height / 3)))
                 {
-                    Attack();
-                    Shoot();
+                    if (touch.position.x > (2 * (Screen.width / 3)))
+                    {
+                        canAttack = false;
+                        Attack();
+                        Shoot();
+                    }
                 }
             }
+        }
+        else
+        {
+            canAttack = true;
         }
     }
 
